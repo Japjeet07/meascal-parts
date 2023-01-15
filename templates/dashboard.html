@@ -1,0 +1,105 @@
+{% extends 'layout.html' %}
+ 
+{% block mainContent %}
+{% if session.username %}
+ 
+<h1 align="center" style="width: 100%;background-color: rgb(0, 57, 122); position:relative; left:0px;
+height:50px; line-height:1;"> Hello ji, {{ session.username }} </h1>
+<br>
+ 
+{% else %}
+You are not Register.
+{% endif %}
+ 
+ 
+ 
+ 
+ 
+ 
+<h3 align="center" style="width: 5%;background-color: rgb(238, 190, 190); position:relative; left:50px;
+               height:20px; line-height:1;display:inline-block;">sno</h3>
+ 
+ 
+<h3 align="center" style="width: 10%;background-color: rgb(238, 190, 190); position:relative; left:350px;
+               height:20px; line-height:1;display:inline-block;">food item</h3>
+ 
+<h3 align="center" style="width: 7%;background-color: rgb(238, 190, 190); position:relative; left:600px;
+height:20px; line-height:1;display:inline-block;">price</h3>
+ 
+<h3 align="center" style="width: 9%;background-color: rgb(238, 190, 190); position:relative; left:850px;
+height:20px; line-height:1;display:inline-block;">quantity</h3>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+<br>
+ 
+ 
+ 
+ 
+ 
+{% for row in menu %}
+ 
+ 
+ 
+<h5 align="center" style="width: 5%;background-color: rgb(255, 255, 255); position:relative; left:50px;
+height:10px; line-height:1;display:inline-block;">{{row["sno"]}}</h5>
+ 
+<h5 align="center" style="width: 5%;background-color: rgb(255, 255, 255); position:relative; left:390px;
+height:10px; line-height:1;display:inline-block;">{{row["food item"]}}</h5>
+ 
+ 
+   <h5 align="center" style="width: 5%;background-color: rgb(255, 255, 255); position:relative; left:699px;
+   height:10px; line-height:1;display:inline-block;">{{row["price"]}}</h5>
+ 
+  
+ 
+ 
+  <br>
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+{% endfor %}
+ 
+<form action="/dashboard" method="POST">
+ 
+   <input type="number" placeholder="quantity1" name="quantity1" value="0" style="position:relative; left:1225px; top:-340px;">
+   <br>
+ 
+   <input type="number" placeholder="quantity2" name="quantity2" value="0" style="position:relative; left:1225px; top:-305px;" >
+   <br>
+   <input type="number" placeholder="quantity3" name="quantity3" value="0" style="position:relative; left:1225px; top:-265px;">
+   <br>
+   <input type="number" placeholder="quantity4" name="quantity4" value="0" style="position:relative; left:1225px; top:-225px;">
+   <br>
+   <input type="number" placeholder="quantity5" name="quantity5" value="0" style="position:relative; left:1225px; top:-190px;">
+   <br>
+   <input type="number" placeholder="quantity6" name="quantity6" value="0" style="position:relative; left:1225px; top:-155px;">
+   <br>
+   <input type="submit" value="add" class="btn btn-secondary" value="0" style="position:relative; left:800px; top:-50px;">
+ 
+</form>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+{% endblock %}
+

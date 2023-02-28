@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+ 
+{% block mainContent %}
+{% if session.username %}
+ {% else %}
+You are not Register.
+{% endif %}
+ 
+ 
+
+ 
+
+ 
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+<table class="table table-striped table-dark" style="margin-top: 5%; width: 100%; height: 40%; background-color: rgb(255, 255, 255); border: 6px solid rgb(4, 0, 245);">
+   <thead>
+      <tr>
+        <th scope="col">Part Name</th>
+        <div style="border: 2px solid;">
+          <th scope="col" style="border: 2px solid;">Approval Request no.</th>
+       </div>
+        <th scope="col" style="border: 2px solid;">In-Time</th>
+        <th scope="col">Inspection Time</th>
+        <th scope="col">Waiting Time</th>
+
+        <th scope="col">Progress</th>
+
+        <th scope="col">comment</th>
+
+      </tr>
+    </thead>
+    {% for row in PART_MASTER %}
+    <tbody>
+      <tr>
+        <th scope="row">{{row["PART_NAME"]}}</th>
+        <td>{{row["ID"]}}</td>
+        <td>{{row["INTIME"]}}</td>
+        <td>{{row["INSPECTION_TIME"]}}</td>
+        <td>{{row["WAITING_TIME"]}}</td>
+        <td>{{row["PROGRESS"]}}</td>
+        <td>{{row["COMMENT"]}}</td>
+
+      </tr>
+      {% endfor %}
+ 
+    </tbody>
+   
+ </table>
+
+
+   
+
+ 
+
+ 
+<br>
+
+
+
+ 
+ <form method="post">
+ 
+ <input type="submit" name="submit"  value="Confirm" style="width: 20%; margin-bottom: 2% ; position:relative;height:50px;display:inline-block; right: -40%; background-color: rgb(255, 255, 255); border: 5px solid rgb(255, 73, 73); border-radius: 5%;"  />
+
+ </form>
+ 
+
+<!-- <a href="/">
+<input type="submit" value="go back">
+</a> -->
+ 
+ 
+{% endblock %}
+

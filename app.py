@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, redirect, request, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import insert
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
@@ -8,19 +9,22 @@ from flask_bcrypt import Bcrypt
 import sqlite3
  
  
-conn = sqlite3.connect('menu.db')
+conn = sqlite3.connect('part.db')
 conn.row_factory = sqlite3.Row
 print("opened successfully")
  
 cur= conn.cursor()
  
+session_options = {
+    'autocommit' : True
+}
  
 app = Flask(__name__)
-db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
- 
+db = SQLAlchemy(app, session_options = session_options)
+
  
  
  
@@ -45,10 +49,10 @@ class User(db.Model, UserMixin):
  
 class RegisterForm(FlaskForm):
    username = StringField(validators=[
-                          InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+                          InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Username"})
  
    password = PasswordField(validators=[
-                            InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+                            InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Password"})
  
    submit = SubmitField('Register')
  
@@ -62,18 +66,24 @@ class RegisterForm(FlaskForm):
  
 class LoginForm(FlaskForm):
    username = StringField(validators=[
-                          InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+                          InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Username"})
  
    password = PasswordField(validators=[
-                            InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
+                            InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Password"})
  
    submit = SubmitField('Login')
  
  
  
  
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+   conn = sqlite3.connect('part.db')
+   conn.row_factory = sqlite3.Row
+#  conn = sqlite3.connect('admin.db')
+   print("helo")
+ 
+   cur= conn.cursor()
    form = LoginForm()
    if form.validate_on_submit():
        
@@ -85,114 +95,183 @@ def login():
                login_user(user)
                if request.method == "POST":
                  session["username"] = request.form.get("username")
-                
+                 session["partid"] = request.form.get("partid")
+                 session["comment"] = request.form.get("comment")
+                 partid = (session['partid'])
+                 
+                 cur.execute("UPDATE PART_MASTER SET DATE = date('now','localtime') WHERE PART_NAME = ?" ,[partid])
+               #   cur.execute("SELECT CONVERT ( CURRENT_TIMESTAMP) AS [DATE] WHERE PART_NAME = ?" ,[partid])
+
+                 conn.commit()
+
                
                return redirect(url_for('dashboard'))
  
  
    return render_template('login.html', form=form)
  
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+   form = LoginForm()
+   if form.validate_on_submit():
+       
+       user = User.query.filter_by(username=form.username.data).first()
+       print(User.query.filter_by(username=form.username.data).first())
+       if user:
+           
+           if bcrypt.check_password_hash(user.password, form.password.data):
+               login_user(user)
+               if request.method == "POST":
+                 session["username"] = request.form.get("username")
+                 
+
+                 
+                 
+                
+               
+               return redirect(url_for('parts'))
  
  
+   return render_template('adminlogin.html', form=form) 
+
+@app.route('/parts', methods=['GET', 'POST'])
+@login_required
+def parts():
+  
+ conn = sqlite3.connect('part.db')
+ conn.row_factory = sqlite3.Row
+#  conn = sqlite3.connect('admin.db')
+ print("helo")
+ 
+ cur= conn.cursor()
+
+ 
+   
+
+      #  partid = request.form['partid']
+
+
+   # sql = ("""SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME = :partid""", {"partid": partid})
+#  sql = ("""SELECT MODEL_ID FROM PART_MASTER WHERE PART_NAME = ?  """,{"partid": partid})
+
+  
+ 
+ cur.execute("SELECT * FROM admin ")
+ results= cur.fetchall()
+ 
+ 
+ 
+
+ 
+ 
+ 
+     
+ conn.commit()   
+
+ return render_template('admindashboard.html', PART_MASTER=results)
+ 
+
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
   
-   conn = sqlite3.connect('menu.db')
-   conn.row_factory = sqlite3.Row
-  
-   cur= conn.cursor()
-   sql = ("""SELECT * FROM menu""")
-  
-  
+ conn = sqlite3.connect('part.db')
+ conn.row_factory = sqlite3.Row
+#  conn = sqlite3.connect('admin.db')
+ print("helo")
  
-   cur.execute(sql)
-   results= cur.fetchall()
- 
- 
-   if request.method == 'POST':
-    
-        quantity1 = request.form['quantity1']
-        quantity2 = request.form['quantity2']
-        quantity3 = request.form['quantity3']
-        quantity4 = request.form['quantity4']
-        quantity5 = request.form['quantity5']
-        quantity6 = request.form['quantity6']
- 
-        
-       
-       
-        with sqlite3.connect("menu.db") as con:
-           cur = con.cursor()
-           print("hi")
-      
-         
-          
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=1 ", [quantity1])
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=2 ", [quantity2])
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=3",  [quantity3])
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=4", [quantity4])
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=5", [quantity5])
-           cur.execute("UPDATE menu SET quantity=? WHERE sno=6", [quantity6])
- 
-          
-          
-           
-          
- 
-             
-          
-        con.commit()
-          
-    
-    
-   
-        return redirect('/total')
-        
-       
- 
-  
- 
-   return render_template('dashboard.html', menu=results)
- 
- 
- 
- 
- 
-  
- 
- 
+ cur= conn.cursor()
+
  
    
+
+      #  partid = request.form['partid']
+ partid = (session['partid'])
+
+
+   # sql = ("""SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME = :partid""", {"partid": partid})
+#  sql = ("""SELECT MODEL_ID FROM PART_MASTER WHERE PART_NAME = ?  """,{"partid": partid})
+
+  
  
-@app.route('/total', methods=['GET', 'POST'])
-@login_required
-def total():
-    conn = sqlite3.connect('menu.db')
-    conn.row_factory = sqlite3.Row
+ cur.execute("SELECT DATE, MODEL_ID, PART_ID_NAME ,CREATE_DATE, SHEET_NAME, PART_NUMBER, EXCEL_FIELD, ID, UPDATE_BY FROM PART_MASTER WHERE PART_NAME = ?  ",[partid])
+ results= cur.fetchall()
+ 
+ 
+ if request.method == "POST":
+          
+
+            comment = (session['comment'])
+            partid = (session['partid'])
+            
+
+            cur.execute(" INSERT INTO admin (ID, PART_NAME,COMMENT)VALUES ((SELECT ID FROM PART_MASTER WHERE PART_NAME=?), (SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME=?), ? )",[(partid),(partid),(comment) ])
+            cur.execute("UPDATE admin SET INTIME = time('now','localtime') WHERE PART_NAME = ?" ,[partid])
+
+            rows = ("SELECT * from admin")
+            prev_time = None
+            for row in rows:
+             if prev_time is None:
+              prev_time = row.INTIME
+             else:
+              WAITING_TIME = (row.INTIME - prev_time).total_seconds()
+              row.WAITING_TIME = WAITING_TIME
+              prev_time = str(row.INTIME)
+
+            db.session.query(admin).update({admin.WAITING_TIME: admin.WAITING_TIME})
+            db.session.commit()
+
+            conn.commit()
+                      
+            return redirect(url_for('login'))
+
+ 
+ 
+ 
+     
+ conn.commit()   
+
+ return render_template('dashboard.html', PART_MASTER=results)
+ 
+ 
+
+ 
+ 
+  
+ 
+ 
+ 
+   
+ 
+# @app.route('/total', methods=['GET', 'POST'])
+# @login_required
+# def total():
+#     conn = sqlite3.connect('menu.db')
+#     conn.row_factory = sqlite3.Row
     
      
-    cur= conn.cursor()
-    sql = ("""SELECT `food item`,`quantity`  FROM menu WHERE quantity>0""")
+#     cur= conn.cursor()
+#     sql = ("""SELECT `food item`,`quantity`  FROM menu WHERE quantity>0""")
   
   
  
-    cur.execute(sql)
-    results= cur.fetchall()  
+#     cur.execute(sql)
+#     results= cur.fetchall()  
  
  
   
     
  
-    data=cur.execute("SELECT * FROM menu")
+#     data=cur.execute("SELECT * FROM menu")
     
-    row2=0
-    for row in data:
-       row1=row[2]*row[3]
-       row2=row2+row1
+#     row2=0
+#     for row in data:
+#        row1=row[2]*row[3]
+#        row2=row2+row1
       
  
-       conn.commit()
+#        conn.commit()
       
       
  
@@ -201,7 +280,7 @@ def total():
  
  
     
-    return render_template('total.html', row2=row2, menu=results)
+#     return render_template('total.html', row2=row2, menu=results)
     
  
       

@@ -23,7 +23,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-   <title>Login</title>
+   <title>part entry</title>
 
 
 </head>
@@ -34,30 +34,51 @@
 
 
 
-<body>
+<body style="background-color: rgb(175, 168, 194);">
 
 
-   <h1>Login Page</h1>
+  
+
+
+ 
 
 
 
+   <form method="POST" action="" style="background-color: rgb(175, 168, 194);  margin-right: 25%; margin-top:10%;width: 100%;">
 
+ <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block; ">Part Number/ Lot code</h1>
 
-
-
-   <form method="POST" action="">
-
+ <input type="text" tabindex="1" name="partid" style="width: 30%; position:relative; 
+ height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);">
 
        {{ form.hidden_tag() }}
 
+        <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;">Emp. code</h1>
+      
 
-       {{ form.username }}
+        <input type="text" name="username" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%; border: 3px solid rgb(4, 0, 245);" >
+      <!-- {{  form.username }} -->
+
+        <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;"> Auth pin</h1>
+
+        <input type="text" name="password" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);" >
+       <!-- {{ form.password }} -->
+
+       <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;"> Priority/Comment</h1>
+
+       <input type="text" name="comment"  style="width: 30%; position:relative; 
+       height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);"/>
 
 
-       {{ form.password }}
+       <!-- {{ form.submit }} -->
 
+       <br>
 
-       {{ form.submit }}
+       <input type="submit" value="Proceed" style="width: 40%; position:relative; margin-top: 6%;
+       height:50px;display:inline-block; right: -31%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;"  >
+
 
 
    </form>
@@ -68,7 +89,7 @@
 
 
 
-   <a href="{{ url_for('register') }}">Don't have an account? Sign Up</a>
+   <h1 style="font-size: small;margin-top: 4%;"><a href="{{ url_for('register') }}">Make new EMP Code and Auth pin</a></h1>
 
 
 </body>

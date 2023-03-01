@@ -7,6 +7,8 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 import sqlite3
+from datetime import datetime, date
+
  
  
 conn = sqlite3.connect('part.db')
@@ -208,19 +210,49 @@ def dashboard():
 
             cur.execute(" INSERT INTO admin (ID, PART_NAME,COMMENT)VALUES ((SELECT ID FROM PART_MASTER WHERE PART_NAME=?), (SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME=?), ? )",[(partid),(partid),(comment) ])
             cur.execute("UPDATE admin SET INTIME = time('now','localtime') WHERE PART_NAME = ?" ,[partid])
+            time_str = '02:30:00'
+            time_obj = datetime.strptime(time_str, '%H:%M:%S').time()
+            time2_obj= time_obj.strftime('%H:%M:%S')
 
-            rows = ("SELECT * from admin")
+
+            cur.execute("UPDATE admin SET INSPECTION_TIME = ? WHERE PART_NAME = ?", (time2_obj, partid))
+ 
+            rows = cur.execute("SELECT * FROM admin").fetchall()
             prev_time = None
-            for row in rows:
-             if prev_time is None:
-              prev_time = row.INTIME
-             else:
-              WAITING_TIME = (row.INTIME - prev_time).total_seconds()
-              row.WAITING_TIME = WAITING_TIME
-              prev_time = str(row.INTIME)
+            prev2_time = None
 
-            db.session.query(admin).update({admin.WAITING_TIME: admin.WAITING_TIME})
-            db.session.commit()
+            for row in rows:
+             
+
+               if prev_time:
+                if prev2_time is not None:                   
+                 
+                   prev3_time = datetime.strptime(prev2_time[4], "%H:%M:%S").time()
+                   prev4_time = datetime.strptime(prev_time[3], "%H:%M:%S").time()
+
+                   time_diff = datetime.strptime(row[2], '%H:%M:%S') - datetime.strptime(prev_time[2], '%H:%M:%S') + (datetime.combine(date.today(), prev3_time) - datetime.min)+(datetime.combine(date.today(), prev4_time) - datetime.min)
+                   time_diff_seconds = int(time_diff.total_seconds())
+                   waiting_time = datetime.utcfromtimestamp(time_diff_seconds).strftime('%H:%M:%S')
+                   cur.execute("UPDATE admin SET WAITING_TIME = ? WHERE INTIME = ?", (waiting_time, row[2]))
+                   prev2_time = row
+
+                else:
+                    prev4_time = datetime.strptime(prev_time[3], "%H:%M:%S").time()
+
+                    time_diff = datetime.strptime(row[2], '%H:%M:%S') -datetime.strptime(prev_time[2], '%H:%M:%S')+(datetime.combine(date.today(), prev4_time) - datetime.min)
+                    time_diff_seconds = int(time_diff.total_seconds())
+
+                    waiting_time = datetime.utcfromtimestamp(time_diff_seconds).strftime('%H:%M:%S')
+
+                    cur.execute("UPDATE admin SET WAITING_TIME = ? WHERE INTIME = ?", (waiting_time, row[2]))
+                    prev2_time = row
+               
+
+
+               prev_time = row
+
+           
+
 
             conn.commit()
                       

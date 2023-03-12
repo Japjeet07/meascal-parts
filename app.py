@@ -7,7 +7,8 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 import sqlite3
-from datetime import datetime, date
+from datetime import datetime, date,timedelta
+import re
 
  
  
@@ -54,9 +55,15 @@ class RegisterForm(FlaskForm):
                           InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Username"})
  
    password = PasswordField(validators=[
-                            InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Password"})
+                            InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
  
    submit = SubmitField('Register')
+
+   def validate_password(self, password):
+       if not re.search(r'\d', password.data):
+           raise ValidationError('Password must contain at least one number.')
+       if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password.data):
+           raise ValidationError('Password must contain at least one special character.')
  
    def validate_username(self, username):
        existing_user_username = User.query.filter_by(
@@ -71,19 +78,37 @@ class LoginForm(FlaskForm):
                           InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Username"})
  
    password = PasswordField(validators=[
-                            InputRequired(), Length(min=0, max=20)], render_kw={"placeholder": "Password"})
+                            InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
  
    submit = SubmitField('Login')
+   
  
  
  
+@app.route('/', methods=['GET', 'POST'])
+def home():
+   form = LoginForm()
+   if form.validate_on_submit():
+       
+       user = User.query.filter_by(username=form.username.data).first()
+       print(User.query.filter_by(username=form.username.data).first())
+       if user:
+           
+           if bcrypt.check_password_hash(user.password, form.password.data):
+               login_user(user)
+               if request.method == "POST":
+                 
+                return redirect(url_for('login'))
+ 
+ 
+   return render_template('home.html', form=form) 
  
 @app.route('/login', methods=['GET', 'POST'])
+@login_required
+
 def login():
    conn = sqlite3.connect('part.db')
    conn.row_factory = sqlite3.Row
-#  conn = sqlite3.connect('admin.db')
-   print("helo")
  
    cur= conn.cursor()
    form = LoginForm()
@@ -101,8 +126,7 @@ def login():
                  session["comment"] = request.form.get("comment")
                  partid = (session['partid'])
                  
-                 cur.execute("UPDATE PART_MASTER SET DATE = date('now','localtime') WHERE PART_NAME = ?" ,[partid])
-               #   cur.execute("SELECT CONVERT ( CURRENT_TIMESTAMP) AS [DATE] WHERE PART_NAME = ?" ,[partid])
+                 cur.execute("UPDATE PART_MASTER SET DATE = datetime('now','localtime') WHERE PART_NAME = ?" ,[partid])
 
                  conn.commit()
 
@@ -124,55 +148,53 @@ def admin():
            if bcrypt.check_password_hash(user.password, form.password.data):
                login_user(user)
                if request.method == "POST":
-                 session["username"] = request.form.get("username")
                  
-
-                 
-                 
-                
-               
-               return redirect(url_for('parts'))
+                return redirect(url_for('parts'))
  
  
    return render_template('adminlogin.html', form=form) 
 
+
+@app.route('/entry', methods=['GET', 'POST'])
+@login_required
+def entry():
+    conn = sqlite3.connect('part.db')
+    conn.row_factory = sqlite3.Row
+
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM admin ")
+    results = cur.fetchall()
+
+    if request.method == "POST":
+        partid = session['partid']
+        progress = request.form.get("progress")
+        cur.execute("UPDATE admin SET PROGRESS = ? WHERE PART_NAME = ?", (progress, partid))
+        conn.commit()
+        session['progress_updated'] = True
+        return redirect(url_for('entry'))
+
+    conn.commit()
+    return render_template('adminentry.html', PART_MASTER=results)
+
+
 @app.route('/parts', methods=['GET', 'POST'])
 @login_required
 def parts():
-  
- conn = sqlite3.connect('part.db')
- conn.row_factory = sqlite3.Row
-#  conn = sqlite3.connect('admin.db')
- print("helo")
- 
- cur= conn.cursor()
+    conn = sqlite3.connect('part.db')
+    conn.row_factory = sqlite3.Row
 
- 
-   
+    cur = conn.cursor()
+    if 'progress_updated' in session:
+        cur.execute("SELECT * FROM admin")
+        results = cur.fetchall()
+        session.pop('progress_updated', None)
+    else:
+        
+       cur.execute("SELECT * FROM admin WHERE PROGRESS IS NOT NULL")
+       results = cur.fetchall()
 
-      #  partid = request.form['partid']
-
-
-   # sql = ("""SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME = :partid""", {"partid": partid})
-#  sql = ("""SELECT MODEL_ID FROM PART_MASTER WHERE PART_NAME = ?  """,{"partid": partid})
-
-  
- 
- cur.execute("SELECT * FROM admin ")
- results= cur.fetchall()
- 
- 
- 
-
- 
- 
- 
-     
- conn.commit()   
-
- return render_template('admindashboard.html', PART_MASTER=results)
- 
-
+    conn.commit()
+    return render_template('admindashboard.html', PART_MASTER=results)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -180,43 +202,77 @@ def dashboard():
   
  conn = sqlite3.connect('part.db')
  conn.row_factory = sqlite3.Row
-#  conn = sqlite3.connect('admin.db')
- print("helo")
  
  cur= conn.cursor()
 
  
-   
-
-      #  partid = request.form['partid']
  partid = (session['partid'])
 
-
-   # sql = ("""SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME = :partid""", {"partid": partid})
-#  sql = ("""SELECT MODEL_ID FROM PART_MASTER WHERE PART_NAME = ?  """,{"partid": partid})
-
-  
- 
  cur.execute("SELECT DATE, MODEL_ID, PART_ID_NAME ,CREATE_DATE, SHEET_NAME, PART_NUMBER, EXCEL_FIELD, ID, UPDATE_BY FROM PART_MASTER WHERE PART_NAME = ?  ",[partid])
  results= cur.fetchall()
  
- 
+ cur.execute("SELECT * FROM operation_master WHERE PART_NAME = ?  ",[partid])
+ results2= cur.fetchall()
+ cur.execute("SELECT COUNT(*) FROM admin")
+ count = cur.fetchone()[0]
+
+ if count == 0:
+    last_id = 0
+ else:
+    cur.execute("SELECT ID FROM admin ORDER BY ID DESC LIMIT 1")
+    last_id = cur.fetchone()[0]
+
+ new_id = last_id + 1
+
  if request.method == "POST":
-          
+  formatted_operation_time = None  # default value
+
+  if request.form.get("selected_options[]"):
+
+   selected_options = request.form.getlist('selected_options[]')
+   selected_options_str = ', '.join([f"'{option}'" for option in selected_options])
+
+   cur.execute(f"SELECT OPERATION_NAME FROM operation_master WHERE OPERATION_ID IN ({selected_options_str}) AND PART_NAME = ?  ",[partid])
+
+  
+   rows23 = cur.fetchall()
+   operation_names = ', '.join([row[0] for row in rows23])
+
+   cur.execute(f"SELECT OPERATION_TIME FROM operation_master WHERE OPERATION_ID IN ({selected_options_str}) AND PART_NAME = ?  ",[partid])
+   rows25 = cur.fetchall()
+   if rows25:
+       total_operation_time = timedelta()
+
+       for row in rows25:
+         operation_time = datetime.strptime(row[0], '%H:%M:%S').time()
+         total_operation_time += timedelta(hours=operation_time.hour, minutes=operation_time.minute, seconds=operation_time.second)
+
+       formatted_operation_time = str(total_operation_time).split('.')[0]
+       session['formatted_operation_time'] = formatted_operation_time  # store in session
+
+      
+
+   return operation_names
+
+
+ 
+ 
+ if request.form.get("submit"):
+  
 
             comment = (session['comment'])
             partid = (session['partid'])
-            
+            formatted_operation_time = session.get('formatted_operation_time')  # retrieve from session
 
-            cur.execute(" INSERT INTO admin (ID, PART_NAME,COMMENT)VALUES ((SELECT ID FROM PART_MASTER WHERE PART_NAME=?), (SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME=?), ? )",[(partid),(partid),(comment) ])
+
+
+            cur.execute(" INSERT INTO admin (ID, PART_NAME,COMMENT)VALUES (?, (SELECT PART_NAME FROM PART_MASTER WHERE PART_NAME=?), ? )",[(new_id),(partid),(comment) ])
             cur.execute("UPDATE admin SET INTIME = time('now','localtime') WHERE PART_NAME = ?" ,[partid])
-            time_str = '02:30:00'
-            time_obj = datetime.strptime(time_str, '%H:%M:%S').time()
-            time2_obj= time_obj.strftime('%H:%M:%S')
+          
+            cur.execute("UPDATE admin SET INSPECTION_TIME = ? WHERE PART_NAME = ?", [formatted_operation_time, partid])
+            conn.commit()
 
 
-            cur.execute("UPDATE admin SET INSPECTION_TIME = ? WHERE PART_NAME = ?", (time2_obj, partid))
- 
             rows = cur.execute("SELECT * FROM admin").fetchall()
             prev_time = None
             prev2_time = None
@@ -262,66 +318,10 @@ def dashboard():
  
  
      
- conn.commit()   
-
- return render_template('dashboard.html', PART_MASTER=results)
- 
+ conn.commit()  
  
 
- 
- 
-  
- 
- 
- 
-   
- 
-# @app.route('/total', methods=['GET', 'POST'])
-# @login_required
-# def total():
-#     conn = sqlite3.connect('menu.db')
-#     conn.row_factory = sqlite3.Row
-    
-     
-#     cur= conn.cursor()
-#     sql = ("""SELECT `food item`,`quantity`  FROM menu WHERE quantity>0""")
-  
-  
- 
-#     cur.execute(sql)
-#     results= cur.fetchall()  
- 
- 
-  
-    
- 
-#     data=cur.execute("SELECT * FROM menu")
-    
-#     row2=0
-#     for row in data:
-#        row1=row[2]*row[3]
-#        row2=row2+row1
-      
- 
-#        conn.commit()
-      
-      
- 
-    
-           
- 
- 
-    
-#     return render_template('total.html', row2=row2, menu=results)
-    
- 
-      
- 
-@app.route('/logout', methods=['GET', 'POST'])
-@login_required
-def logout():
-   logout_user()
-   return redirect(url_for('login'))
+ return render_template('dashboard.html', PART_MASTER=results, operation_master=results2,new_id=new_id)
  
  
 @ app.route('/register', methods=['GET', 'POST'])
@@ -332,6 +332,8 @@ def register():
        hashed_password = bcrypt.generate_password_hash(form.password.data)
        new_user = User(username=form.username.data, password=hashed_password)
        db.session.add(new_user)
+       db.session.begin(subtransactions=True)
+
        db.session.commit()
        return redirect(url_for('login'))
  

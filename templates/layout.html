@@ -6,14 +6,16 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Document</title>
 
-
-   <script>
-    // When the user clicks on <div>, open the popup
-    function myFunction() {
-      var popup = document.getElementById("myPopup");
-      popup.classList.toggle("show");
+   <script type="text/javascript" src="{{ url_for('static', filename='multiselect-dropdown.js') }}"></script>
+   <style type="text/css">
+    select{
+      width: 10em;
     }
-    </script>
+   </style>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+   <!-- Your code -->
+   
 </head>
 <body style="background-color: rgb(158, 158, 158);">
   

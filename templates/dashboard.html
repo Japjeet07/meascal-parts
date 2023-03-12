@@ -5,26 +5,7 @@
  {% else %}
 You are not Register.
 {% endif %}
- 
- 
 
- 
-
- 
-
-
- 
- 
- 
- 
- 
- 
- 
-
- 
- 
- 
- 
  
 {% for row in PART_MASTER %}
  
@@ -43,7 +24,7 @@ You are not Register.
          
          <td>
             <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-               {{row["ID"]}}
+               {{ new_id }}
             </div>
          </td>
          
@@ -75,7 +56,8 @@ You are not Register.
          </td>
        <td>
          <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-            {{session.partid}}
+            {{row["PART_NUMBER"]}}
+
          </div>
       </td>
      
@@ -91,7 +73,8 @@ You are not Register.
          </td>
        <td>
          <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-         {{row["PART_ID_NAME"]}}
+            {{ session.partid }}
+
       </div>
       </td>
       
@@ -107,8 +90,14 @@ You are not Register.
          </td>
       <td>
          <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-         {{row["PART_NUMBER"]}}
-      </div>
+            <select  id="operation-numbers" name="select2" multiple >
+               {% for row in operation_master %}
+
+               <option value="{{row['OPERATION_ID']}}">            {{row['OPERATION_ID']}}               </option>
+               {% endfor %}
+
+              
+             </select>      </div>
       </td>
      
     </tr>
@@ -121,11 +110,28 @@ You are not Register.
             Operation Name
          </div>
          </td>
-      <td>
-         <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-         {{row["SHEET_NAME"]}}
-      </div>
-      </td>
+        <td>
+            <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
+               <script type="text/javascript">
+                  $(document).ready(function() {
+                    $('#operation-numbers').change(function() {
+                      var select2 = $(this).val();
+                      console.log(select2); // Debug code
+
+                      $.ajax({
+                        url: '/dashboard',
+                        type: 'POST',
+                        data: {selected_options: select2},
+                        success: function(response) {
+                          $('#operation_names').text(response);
+                        }
+                      });
+                    });
+                  })
+                  </script>
+               <div id="operation_names"></div>
+    </div>
+         </td>
      
     </tr>
     <tr>
@@ -137,11 +143,17 @@ You are not Register.
             Section Code
          </div>
          </td>
-      <td>
-         <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-         {{row["EXCEL_FIELD"]}}
-      </div>
-      </td>
+         <td>
+            <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
+               <select name="cars" id="cars" >
+                  {% for row in operation_master %}
+   
+                  <option value="volvo">            {{row["SECTION_CODE"]}}               </option>
+                  {% endfor %}
+   
+                 
+                </select>      </div>
+         </td>
      
     </tr>
     <tr>
@@ -153,10 +165,17 @@ You are not Register.
           Machine No.
          </div>
          </td>
-      <td>
-         <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
-         {{row["MODEL_ID"]}}
-      </div>
+         <td>
+            <div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center;">
+               <select name="cars" id="cars" multiple multiselect-search="true" >
+                  {% for row in operation_master %}
+   
+                  <option value="volvo">            {{row["MACHINE_NO."]}}               </option>
+                  {% endfor %}
+   
+                 
+                </select>      </div>
+         </td>
       </td>
      
     </tr>
@@ -204,21 +223,11 @@ You are not Register.
  
 <br>
 
- 
- 
-
- 
  <form method="post">
  
  <input type="submit" name="submit"  value="Confirm" style="width: 20%; margin-bottom: 2% ; position:relative;height:50px;display:inline-block; right: -40%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;"  />
 
  </form>
- 
-
-<!-- <a href="/">
-<input type="submit" value="go back">
-</a> -->
- 
- 
+  
 {% endblock %}
 

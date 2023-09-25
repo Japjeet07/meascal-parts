@@ -12,10 +12,44 @@
       width: 10em;
     }
    </style>
+  
+
    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
    <!-- Your code -->
-   
+   <style>
+    .removed-option {
+  background-color: green;
+}
+
+   </style>
+   <style>
+    .selected-option {
+      display: inline-block;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      border: 1px solid black;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .selected-option span {
+      display: inline-block;
+    }
+
+    .selected-option .remove-option {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      font-weight: bold;
+      cursor: pointer;
+     
+
+    }
+  </style>
+  
+
 </head>
 <body style="background-color: rgb(158, 158, 158);">
   

@@ -22,13 +22,13 @@
 
 
   
+ <form method="POST" action="" style="background-color: rgb(255, 255, 255);margin-left: 29% ; margin-right: 5%; margin-top:10%;width: 40%;">
 
 
  
 
 
 
-   <form method="POST" action="" style="background-color: rgb(255, 255, 255);margin-left: 29% ; margin-right: 5%; margin-top:10%;width: 40%;">
 
  <h1 align="center" style="width: 60%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Inspection Admin</h1>
 
@@ -47,23 +47,31 @@
 
         <input type="text" name="password" style="width: 30%; position:relative; 
         height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);" >
-       <!-- {{ form.password }} -->
 
-       
+<h2 align="center" style="width: 20%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Toolrooom</h2>
 
+<div style="border: 2px solid rgb(0, 0, 0); margin-bottom: 7%; text-align: center; width: 67%; height: 200%;">
 
-       <!-- {{ form.submit }} -->
+   <select name="toolroom" id="toolroom" style="width: 50%;" >
+      {% for row in results %}
+
+      <option value="{{row['TOOLROOM']}}">            {{row['TOOLROOM']}}               </option>
+      {% endfor %}
+
+     
+    </select>    
+   </div>
 
        <br>
 
-       <input type="submit" value="Proceed" style="width: 40%; position:relative; margin-top: 6%;
+       <input type="submit" method name="submit" style="width: 40%; position:relative; margin-top: 6%;
        height:50px;display:inline-block; right: -31%; background-color: rgb(87, 174, 201); border: 2px solid rgb(0, 0, 0); border-radius: 5%;"  >
-
+          </form>
 <h1 style="font-size: small;margin-top: 4%;margin-left: 34%; "><a href="{{ url_for('register') }}">Make new admin? Sign up</a></h1>
 
 
-   </form>
 
+   
 
 
 

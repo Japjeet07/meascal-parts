@@ -1,0 +1,337 @@
+{% extends 'layout.html' %}
+ 
+{% block mainContent %}
+{% if session.username %}
+ {% else %}
+You are not Register.
+{% endif %}
+
+<h1>Toolroom no. {{toolroom}}</h1>
+ 
+<table class="table table-striped table-dark" style="margin-top: 5%; width: 100%; height: 40%; background-color: rgb(255, 255, 255); border: 6px solid rgb(4, 0, 245);">
+  <thead>
+    <tr>
+        <th scope="col">SELECT PART NAME</th>
+        <th scope="col">Status</th>
+
+        <div style="border: 2px solid;">
+            <th scope="col" style="border: 2px solid;">Approval Request no.</th>
+        </div>
+        <th scope="col" style="border: 2px solid;">In-Time</th>
+        <th scope="col">Inspection Time</th>
+        <th scope="col">Waiting Time</th>
+
+        <th scope="col">Operation</th>
+
+        <th scope="col">Progress</th>
+        <th scope="col">Toolroom</th>
+        <th scope="col">Priority</th>
+
+
+
+
+    </tr>
+</thead>
+{% for row in PART_MASTER %}
+    <tbody>
+      <tr data-partname="{{row['PART_NAME']}}">
+        <th scope="row">
+          <div >
+            <input type="checkbox" id="priority" name="{{row['PART_NAME']}}" value="{{row['PART_NAME']}}" >
+            <label for="{{row['PART_NAME']}}">{{row["PART_NAME"]}}</label><br>
+          </div>
+          <script>
+          // Get all the checkboxes on the page
+          var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+          
+          // Loop through the checkboxes and add the event listener
+          checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+              // Get the selected partname
+              var partname = this.value;
+          
+              // Find the row corresponding to the selected partname
+              var row = document.querySelector('tr[data-partname="' + partname + '"]');
+              
+              // Send an AJAX request to update the status to "Approved"
+              var formData = new FormData();
+                            formData.append('partnames', partname);
+                           
+
+                            $.ajax({
+                                url: "/entry",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    console.log("status updated");
+
+                                }
+                            });
+            });
+          });
+          
+        </script>
+          </th>
+          <td>{{row["STATUS"]}}</td>
+
+            <td>{{row["ID"]}}</td>
+            <td>{{row["INTIME"]}}</td>
+            <td>{{row["INSPECTION_TIME"]}}</td>
+            <td>{{row["WAITING_TIME"]}}</td>
+
+
+            <td>
+                <div id="operation-names-{{ row['PART_NAME'] }}" data-operations="{{ row['OPERATION_NAMES'] }}"></div>
+            </td>
+            <td>
+                <div name="progress" id="progress-{{ row['PART_NAME'] }}" style="display: block;"></div>
+                <script>
+
+
+                    function removeOption(el, partname) {
+
+                        var operationName = el.parentNode.querySelector("span:first-child").textContent;
+                        var operationId = "operation-" + partname + "-" + (document.querySelectorAll("#operation-names-" + partname + " .selected-option").length + 1);
+                        var revertedOperationName = null; // Initialize variable to store the name of the reverted operation
+
+
+
+                        if (el.parentNode.classList.contains("removed-option")) {
+                            // Revert changes if operation is already removed
+                            el.parentNode.classList.remove("removed-option");
+                            el.parentNode.style.backgroundColor = "white";
+                            var operationList = document.querySelector("#operation-names-" + partname + " .operation-list");
+                            var newOperationNames = document.querySelector("#operation-names-" + partname).getAttribute("data-operations");
+
+                            var operationNames = newOperationNames.split(", ");
+
+                            console.log("operationNames", operationNames);
+                            if (operationNames.length === 1 && operationNames[0] === "null") {
+                                console.log("nooperation");
+
+                                operationNames = []; // Set the array to empty if it only contains an empty string
+
+                            }
+
+
+                            operationNames.push(operationName); // Add the reverted operation to the end of the list
+                            console.log("operationNames after push", operationNames);
+                            var progressop = operationNames;
+                            updateProgress(partname, newOperationNames,progressop);
+
+                            var operationNamesString = operationNames.join(", ");
+                            $("#operation-names-{{ row['PART_NAME'] }}").attr("data-operations", operationNamesString);
+
+                            // Update the innerHTML of the operation-names div with the new list of operations
+                            console.log(operationNamesString)
+                            console.log(operationName)
+
+                            // Send information about the updated operation list to the backend
+                            var formData = new FormData();
+                            formData.append('partname2', partname);
+                            formData.append('addedoperation', operationNamesString);
+                            formData.append('addoperationName', operationName);
+
+                            $.ajax({
+                                url: "/operation",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    console.log("Operation list updated successfully");
+
+                                }
+                            });
+
+                        }
+
+                        else {
+                            console.log("Removing operation:", operationName);
+
+                            // Mark operation as removed
+                            el.parentNode.classList.add("removed-option");
+                            el.parentNode.style.backgroundColor = "green";
+
+                            var operationNames = document.querySelector("#operation-names-" + partname).getAttribute("data-operations");
+
+                            // Split the operation names string into an array
+                            var operationNamesArray = operationNames.split(", ");
+
+                            var operationIndex = operationNamesArray.indexOf(operationName);
+
+
+                            // Remove any leading or trailing spaces from the operation names
+                            operationNamesArray = operationNamesArray.map(function (name) {
+                                return name.trim();
+                            });
+
+                            // Create a new array that excludes the target operation
+
+                            var newOperationNamesArray = operationNamesArray.filter(function (name) {
+                                return name !== operationName;
+                            });
+
+
+                            console.log(newOperationNamesArray.length)
+
+                            newOperationNamesArray = newOperationNamesArray.filter(function (name) {
+                                return name !== "";
+                            });
+                            var progressop = newOperationNamesArray;
+                            updateProgress(partname,newOperationNames , progressop);
+
+                            // Join the remaining operation names back into a string
+                            var newOperationNames = newOperationNamesArray.join(", ");
+
+
+                            if (newOperationNames === "") {
+                                console.log("hello");
+                                newOperationNames = null;
+                                var empty = "No Operation Left";
+                                document.querySelector("#operation-names-" + partname).innerHTML = "No Operation Left";
+
+
+                                console.log(newOperationNames)
+
+
+                            }
+                            document.querySelector("#operation-names-" + partname).dataset.operations = newOperationNames;
+
+                            var formData = new FormData();
+                            formData.append('partname', partname);
+                            formData.append('operation', operationName);
+                            formData.append('newoperation', newOperationNames);
+                            formData.append('lastoperation', operationName);
+
+
+
+                            $.ajax({
+                                url: "/operation",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    console.log("Operation removed successfully");
+                                },
+                                error: function (error) {
+                                    console.log("Error removing operation");
+                                }
+                            });
+                        }
+
+                    }
+
+
+
+                    function createOptionElements(operationNames, partname) {
+                        if (operationNames === "") {
+                            console.log("nooperationssss");
+                        }
+
+
+
+                        else {
+                            var operationNamesArray = operationNames.split(",");
+
+
+                            var html = "";
+                            for (var i = 0; i < operationNamesArray.length; i++) {
+                                var operationName = operationNamesArray[i].trim();
+                                var operationId = "operation-" + partname + "-" + (i + 1);
+
+                                html += "<div id='" + operationId + "' class='selected-option'>";
+                                html += "<span>" + operationName + "</span>";
+                                html += "<span class='remove-option' onclick='removeOption(this, \"" + partname + "\")'>x</span>";
+                                html += "</div>";
+                            }
+                            return html;
+                        }
+                    }
+
+
+
+
+
+                    function updateProgress(partname,newOperationNames,progressop) {
+
+                        //  var progress = newOperationNamesArray.split(", ");
+                        // var newOperationNames = document.querySelector("#operation-names-" + partname).getAttribute("data-operations");
+
+                        // var operationNamesArray = newOperationNames.split(", ");
+                        console.log("huigjhv0", progressop)
+                        if (newOperationNames === "null" || newOperationNames === "") {
+                            console.log("set to 0 ");
+                            newOperationNames = null;
+                            completedCount = 0;
+                            document.querySelector("#operation-names-" + partname).innerHTML = "No Operation Left";
+
+                        }
+                        else {
+                            var completedCount = progressop.length;
+                        }
+
+                        var totalCount = document.querySelectorAll("#operation-names-" + partname + " .selected-option").length;
+                        var remainingCount = totalCount - completedCount;
+                        var progressDiv = document.querySelector("#progress-" + partname);
+                        progressDiv.textContent = remainingCount + "/" + totalCount;
+                        console.log("partname: ", partname);
+                        console.log("totalCount: ", totalCount);
+                        console.log("completedCount: ", completedCount);
+                        console.log("remainingCount: ", remainingCount);
+                    }
+
+
+
+
+                    var operationNames = "{{ row['OPERATION_NAMES'] }}";
+                    var operationNamesHTML = createOptionElements(operationNames, "{{ row['PART_NAME'] }}");
+
+                    // document.getElementById("operation-names-{{ row['PART_NAME'] }}").insertAdjacentHTML('beforeend', operationNamesHTML);
+                        var newOperationNames =  document.getElementById("operation-names-{{ row['PART_NAME'] }}").insertAdjacentHTML('beforeend', operationNamesHTML);
+
+
+
+                    var progressop = operationNames.split(", ");
+
+                    updateProgress("{{ row['PART_NAME'] }}", newOperationNames ,progressop);
+
+// console.log("japjeet",progressop)
+                </script>
+
+
+
+            </td>
+            <td>{{row["TOOLROOM"]}}</td>
+            <td>{{row["PRIORITY"]}}</td>
+
+
+
+
+
+
+
+      </tr>
+      {% endfor %}
+ 
+    </tbody>
+   
+ </table>
+
+<br>
+
+ <form method="post">
+    <input type="text" name="progress">
+
+ <input type="submit" name="submit"  value="Confirm" style="width: 20%; margin-bottom: 2% ; position:relative;height:50px;display:inline-block; right: -40%; background-color: rgb(255, 255, 255); border: 5px solid rgb(255, 73, 73); border-radius: 5%;"  />
+ <input type="submit" name="goback"  value="go back" style="width: 20%; margin-bottom: 2% ; position:relative;height:50px;display:inline-block; right: -40%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;"  />
+
+ </form>
+ <a href="{{ url_for( 'toollogin') }}">Go Back</a>
+
+ 
+{% endblock %}
+

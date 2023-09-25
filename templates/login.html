@@ -1,84 +1,62 @@
 <!DOCTYPE html>
 
-
-
-
 <html lang="en">
 
-
-
-
-
-
-
 <head>
-
-
    <meta charset="UTF-8">
-
-
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
    <title>part entry</title>
-
-
 </head>
-
-
-
-
-
-
 
 <body style="background-color: rgb(175, 168, 194);">
 
 
-  
+   <h1 align="center"> Toolroom: {{ toolroom }}</h1>
 
 
- 
+   <form method="POST" action=""
+      style="background-color: rgb(175, 168, 194);  margin-right: 25%; margin-top:10%;width: 100%;">
 
+      <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block; ">Part Number/ Lot code
+      </h1>
 
-
-   <form method="POST" action="" style="background-color: rgb(175, 168, 194);  margin-right: 25%; margin-top:10%;width: 100%;">
-
- <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block; ">Part Number/ Lot code</h1>
-
- <input type="text" tabindex="1" name="partid" style="width: 30%; position:relative; 
+      <input type="text" tabindex="1" name="partid" style="width: 30%; position:relative; 
  height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);">
 
-       {{ form.hidden_tag() }}
+      {{ form.hidden_tag() }}
 
-        <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;">Emp. code</h1>
-      
+      <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;">Emp. code</h1>
 
-        <input type="text" name="username" style="width: 30%; position:relative; 
-        height:25px;display:inline-block; right: -8%; border: 3px solid rgb(4, 0, 245);" >
+
+      <input type="text" name="username" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%; border: 3px solid rgb(4, 0, 245);">
 
       <!-- {{  form.username }} -->
 
-        <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;"> Auth pin</h1>
+      <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;"> Auth pin</h1>
 
-        <input type="password" name="password" style="width: 30%; position:relative; 
-        height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);" >
-       <!-- {{ form.password }} -->
+      <input type="password" name="password" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);">
+      <!-- {{ form.password }} -->
 
-       <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;"> Priority/Comment</h1>
+      <h1 align="center" style="width: 50%; position:relative;height:25px;display:inline-block;">Comment</h1>
 
-       <input type="text" name="comment"  style="width: 30%; position:relative; 
-       height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);"/>
+      <input type="text" name="comment" style="width: 30%; position:relative; 
+       height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);" />
+      <div>
+         <input type="checkbox" id="priority" name="priority" value="Yes" style="width: 10%; position:relative; 
+       height:25px;display:inline-block; right: -40%; margin-top: 5%;">
+         <label for="priority"
+            style="width: 20%; position:relative;height:25px;display:inline-block;right: -39%; font-size: larger; font-weight: bolder; ">Priority</label><br>
+      </div>
+      <!-- {{ form.submit }} -->
 
+      <br>
 
-       <!-- {{ form.submit }} -->
-
-       <br>
-
-       <input type="submit" value="Proceed" style="width: 40%; position:relative; margin-top: 6%;
-       height:50px;display:inline-block; right: -31%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;"  >
+      <input type="submit" value="Proceed"
+         style="width: 40%; position:relative; margin-top: 6%;
+       height:50px;display:inline-block; right: -31%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;">
 
 
 
@@ -90,7 +68,8 @@
 
 
 
-   <h1 style="font-size: small;margin-top: 4%;"><a href="{{ url_for('register') }}">Make new EMP Code and Auth pin</a></h1>
+   <h1 style="font-size: small;margin-top: 4%;"><a href="{{ url_for('register') }}">Make new EMP Code and Auth pin</a>
+   </h1>
 
 
 </body>
@@ -102,5 +81,3 @@
 
 
 </html>
-
-

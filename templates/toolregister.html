@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+
+
+
+
+
+
+
+<head>
+
+
+    <meta charset="UTF-8">
+
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>Register</title>
+
+
+</head>
+
+
+
+
+
+
+
+<body>
+
+
+    <h1>tool admin Register Page</h1>
+
+
+
+
+
+
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>part entry</title>
+</head>
+<body style="background-color: rgb(91, 142, 219);">
+
+<form method="POST" action="" style="background-color: rgb(255, 255, 255);margin-left: 29% ; margin-right: 5%; margin-top:10%;width: 40%;">
+
+ <h1 align="center" style="width: 60%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Toolroom admin register</h1>
+
+ 
+
+      
+
+        <h2 align="center" style="width: 20%; position:relative;height:25px;display:inline-block;margin-left: 19%;">Username</h2>
+      
+
+        <input type="text" name="tooluser" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%; border: 3px solid rgb(4, 0, 245);" >
+
+        <h2 align="center" style="width: 20%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Password</h2>
+
+        <input type="text" name="tooladminpassword" style="width: 30%; position:relative; 
+        height:25px;display:inline-block; right: -8%;border: 3px solid rgb(4, 0, 245);" >
+
+
+<h2 align="center" style="width: 20%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Toolrooom</h2>
+
+<div style="border: 2px solid rgb(255, 255, 255); margin-bottom: 7%; text-align: center;">
+
+   <select name="toolnum" id="toolnum"  >
+      {% for row in results %}
+
+      <option value="{{row['TOOLROOM']}}">            {{row['TOOLROOM']}}               </option>
+      {% endfor %}
+
+     
+    </select>    
+   </div>
+       <br>
+
+       <input type="submit" value="Proceed" style="width: 40%; position:relative; margin-top: 6%;
+       height:50px;display:inline-block; right: -31%; background-color: rgb(87, 174, 201); border: 2px solid rgb(0, 0, 0); border-radius: 5%;"  >
+    
+    
+
+
+   </form>
+  
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

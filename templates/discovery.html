@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        <li><a href="{{ url_for('entry') }}">Entry</a></li>
+        <li><a href="{{ url_for('parts') }}">Parts</a></li>
+        <li><a href="{{ url_for('operation') }}">Operation</a></li>
+        <li><a href="{{ url_for('toolreg') }}">make new toolroom admin</a></li>
+
+    </ul>
+    <form method="post">
+    <h2 align="center" style="width: 20%; position:relative;height:25px;display:inline-block; margin-left: 19%;">Toolrooom</h2>
+
+<div style="border: 2px solid rgb(255, 255, 255); margin-bottom: 7%; text-align: center;">
+
+   <select name="toolroomadmin" id="toolroomadmin"  >
+      {% for row in results %}
+
+      <option value="{{row['TOOLROOM']}}">            {{row['TOOLROOM']}}               </option>
+      {% endfor %}
+
+     
+    </select>    
+   </div>
+   <div>
+ 
+    <input type="submit" name="submit"  value="Confirm" style="width: 20%; margin-bottom: 2% ; position:relative;height:50px;display:inline-block; right: -40%; background-color: rgb(87, 174, 201); border: 5px solid rgb(4, 0, 245); border-radius: 5%;"  />
+   
+    </form>
+   </div>
+</body>
+</html>
